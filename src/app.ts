@@ -4,6 +4,7 @@ import { getUsersFromDB } from './db-test';
 import isBase64 from './base64-test';
 import path from 'path';
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 const port = 3000;
