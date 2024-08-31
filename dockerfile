@@ -23,5 +23,4 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 # Define o comando para iniciar a aplicação
-RUN ["node", "./manipulate-db/create-table.js"]
-CMD ["npm", "run dev"]
+CMD ["npm", "run", "dev"]
