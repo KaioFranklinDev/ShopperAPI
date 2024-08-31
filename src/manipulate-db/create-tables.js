@@ -37,6 +37,8 @@ db.serialize(() => {
         gas_measure INTEGER,
         gas_image64 TEXT,
         gas_measure_uuid TEXT,
+        gas_confirmed BOOLEAN;
+        water_confirmed BOOLEAN;
         FOREIGN KEY (customerID) REFERENCES customers(customerID),
         UNIQUE (customerID, month, year)
       )

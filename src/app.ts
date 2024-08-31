@@ -6,6 +6,8 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import haveMeasureMonth from './have-mensure-month';
+import verifyConfirmed from './verify-confirmed';
+import verifyMeasureUUID from './verify-measure-uuid';
 
 const app = express();
 const port = 3000;
@@ -29,7 +31,7 @@ app.get('/imagem/:id', (req, res) => {
   res.sendFile(imagePath);
 });
 
-app.post('/submit', async (req, res) => {
+app.post('/upload', async (req, res) => {
   const { image, customer_code, measure_datetime, measure_type } = req.body;
 
   if (!image || !customer_code || !measure_datetime || !measure_type) {
@@ -80,6 +82,46 @@ app.post('/submit', async (req, res) => {
     console.error("Erro:", error);
     res.status(500).send("Erro ao processar a requisição.");
   }
+});
+
+app.patch('/confirm', async (req,res) => {
+  const { measure_uuid, confirmed_value } = req.body;
+  if (!measure_uuid || !confirmed_value ) {
+    return res.status(400).send({
+      "error_code": "INVALID_DATA",
+      "error_description": "Verifique os dados enviados, algum nome de campo inválido."
+    });
+  }
+
+  try{
+    const verifiedMeasuaUUID = await verifyMeasureUUID(measure_uuid)
+    if(!verifiedMeasuaUUID){
+      return res.status(404).send({
+        "error_code": "MEASURE_NOT_FOUND",
+        "error_description": "Não encontado uuid, verifique-o"
+      }); 
+    }
+  } catch(error){
+    res.status(401).json({"erro":"algo errado na tentativa confirmação"})
+  }
+  
+  try{
+    const hasConfirmed = await verifyConfirmed(measure_uuid)
+    console.log(hasConfirmed)
+    if(hasConfirmed){
+      return res.status(409).send({
+        "error_code": "CONFIRMATION_DUPLICATE",
+        "error_description": "Leitura do mês já realizada"        
+      }); 
+    }  
+  } catch(error){
+    res.status(401).json({"fail":"algoerrado aq"})
+  }
+  
+  return res.status(200).send({
+    "success":true        
+  });
+  
 });
 
 
